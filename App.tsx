@@ -14,7 +14,7 @@ import Project5 from './THBuoi1/Project5';
 import Project6 from './THBuoi1/Project6';
 import Project7 from './THBuoi1/Project7';
 import Project8 from './THBuoi1/Project8';
-
+import Calculator from './THBuoi1/Calculator';
 // Định nghĩa các screen
 type RootStackParamList = {
   Home: undefined;
@@ -26,6 +26,7 @@ type RootStackParamList = {
   Project6: undefined;
   Project7: undefined;
   Project8: undefined;
+  Calculator: undefined;
 };
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -46,6 +47,7 @@ function HomeScreen({ navigation }: Props) {
     { name: 'Project6', component: 'Project6' },
     { name: 'Project7', component: 'Project7' },
     { name: 'Project8', component: 'Project8' },
+    { name: 'Calculator', component: 'Calculator'},
   ] as const;
 
   return (
@@ -89,6 +91,7 @@ export default function App() {
           <Stack.Screen name="Project6" component={Project6} />
           <Stack.Screen name="Project7" component={Project7} />
           <Stack.Screen name="Project8" component={Project8} />
+          <Stack.Screen name="Calculator" component={Calculator} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
