@@ -1,23 +1,18 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { fetchContacts } from "../utility/api";
 import ContactListItem from "../components/ContactListItem";
-import { ActivityIndicator } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchContactsLoading,
   fetchContactsSuccess,
   fetchContactsError,
-} from "../screens/Store"
+} from "../screens/Store"; 
 
-const keyExtractor = ({ phone }) => phone;
+const keyExtractor = ({ phone }) => phone || Math.random().toString();
 
 const Contacts = ({ navigation }) => {
-  // ✅ Đảm bảo đọc đúng tên state
-  const contacts = useSelector((state) => state.contacts.contacts);
-  const loading = useSelector((state) => state.contacts.loading);
-  const error = useSelector((state) => state.contacts.error);
-
+  const { contacts, loading, error } = useSelector((state) => state.contacts);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -36,7 +31,9 @@ const Contacts = ({ navigation }) => {
       });
   }, [dispatch]);
 
-  const contactsSorted = contacts ? [...contacts].sort((a, b) => a.name.localeCompare(b.name)) : [];
+  const contactsSorted = contacts
+    ? [...contacts].sort((a, b) => a.name.localeCompare(b.name))
+    : [];
 
   const renderContact = ({ item }) => {
     const { name, avatar, phone } = item;

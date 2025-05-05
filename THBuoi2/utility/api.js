@@ -1,36 +1,57 @@
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid'; 
+const URL = 'https://randomuser.me/api/?results=100&seed=fullstackio';
 
-const mapContact = (contact) => {
-  const { name, picture, phone, cell, email } = contact;
+export const fetchContacts = async () => {
+  try {
+    const response = await fetch(URL);
+    if (!response.ok) {
+      throw new Error('Failed to fetch contacts');
+    }
+    const data = await response.json();
+    if (!data.results || data.results.length === 0) {
+      throw new Error('No contacts found');
+    }
+    return data.results.map(formatUser);
+  } catch (error) {
+    console.error(error.message);
+    return [];  // Return an empty array in case of error
+  }
+};
 
+export const fetchUserContact = async () => {
+  try {
+    const response = await fetch('https://randomuser.me/api/?seed=fullstackio');
+    if (!response.ok) {
+      throw new Error('Failed to fetch user contact');
+    }
+    const data = await response.json();
+    return formatUser(data.results[0]);
+  } catch (error) {
+    console.error(error.message);
+    return {};  // Return an empty object in case of error
+  }
+};
+
+export const fetchRandomContact = async () => {
+  try {
+    const response = await fetch('https://randomuser.me/api/');
+    if (!response.ok) {
+      throw new Error('Failed to fetch random contact');
+    }
+    const data = await response.json();
+    return formatUser(data.results[0]);
+  } catch (error) {
+    console.error(error.message);
+    return {};  // Return an empty object in case of error
+  }
+};
+
+const formatUser = (user) => {
   return {
-    id: uuidv4(),
-    name: `${name.first} ${name.last}`,
-    avatar: picture.large,
-    phone,
-    cell,
-    email,
-    favorite: Math.random() >= 0.5,
+    name: `${user.name.first} ${user.name.last}`,
+    avatar: user.picture.large,
+    phone: user.phone,
+    email: user.email,
+    cell: user.cell,
+    favorite: Math.random() < 0.2, // Randomly assigning favorites
   };
 };
-
-const fetchContacts = async () => {
-  const response = await fetch('https://randomuser.me/api/?results=100&seed=fullstackio');
-  const contactData = await response.json();
-  return contactData.results.map(mapContact);
-};
-
-const fetchUserContact = async () => {
-  const response = await fetch('https://randomuser.me/api/?seed=fullstackio');
-  const userData = await response.json();
-  return mapContact(userData.results[0]);
-};
-
-const fetchRandomContact = async () => {
-  const response = await fetch('https://randomuser.me/api/');
-  const userData = await response.json();
-  return mapContact(userData.results[0]);
-};
-
-export { fetchContacts, fetchUserContact, fetchRandomContact };

@@ -1,83 +1,41 @@
-import React from "react";
-import PropTypes from 'prop-types';
-import colors from '../utility/colors';
-import { StyleSheet, TouchableHighlight, View } from "react-native";
-import { Avatar } from 'react-native-paper';
+import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-const ContactListItem = ({
-    name, avatar, phone, onPress,
-}) =>
-{
-    return(
-        <TouchableHighlight
-            underlayColor={colors.grey}
-            style={styles.container}
-            onPress={onPress}
-        >
-        
-            <View style={styles.contactInfo}>
-                <Image
-                    style={styles.avatar}
-                    source={{uri: avatar,}}
-                />
-
-                <View style={styles.details}>
-                    <Text style={[styles.title]}>{name}</Text>
-                    <Text style={[styles.subtitle]}>{phone}</Text>
-                </View>
-            </View>
-        </TouchableHighlight>
-    );
-
+const ContactListItem = ({ name, avatar, phone, onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.container}>
+      <Image source={{ uri: avatar }} style={styles.avatar} />
+      <View style={styles.info}>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.phone}>{phone}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
-ContactListItem.PropTypes = {
-    name: PropTypes.string,
-    phone: PropTypes.string,
-    avatar: PropTypes.string,
-    onPress: PropTypes.func,
-}
-
 const styles = StyleSheet.create({
-    container: {
-        paddingLeft: 24,
-    },
-
-    contactInfo:{
-        flex: 1,
-        flexDirection: 'row',
-        alignItems:'center',
-        paddingTop: 16,
-        paddingBottom: 16,
-        paddingRight: 24,
-        borderBottomColor: colors.grey,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-    
-    avatar:{
-        borderRadius: 22,
-        width: 44,
-        height: 44,
-    },
-
-    details: {
-        justifyContent: 'center',
-        flex: 1,
-        marginLeft: 20,
-    },
-
-    title:{
-        color: colors.black,
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-
-    subtitle:{
-        color: colors.blue,
-        fontSize: 15,
-        margin: 4,
-    },
-
+  container: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+  info: {
+    marginLeft: 16,
+    justifyContent: 'center',
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  phone: {
+    color: '#888',
+  },
 });
 
 export default ContactListItem;

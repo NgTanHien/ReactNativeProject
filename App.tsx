@@ -1,28 +1,13 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, StackHeaderProps } from '@react-navigation/stack';
-import { PaperProvider } from 'react-native-paper';
-import HomeScreen from './Buoi4/HomeScreen';
-import ProfileScreen from './Buoi4/Profile';
-import CustomNavigationBar from './Buoi4/CustomNavigationBar';
-
-const Stack = createStackNavigator();
+import { Provider } from 'react-redux';
+import DrawerNavigator from './THBuoi2/contact-list/routes';
+import Store from './THBuoi2/screens/Store';
 
 const App = () => {
   return (
-    <PaperProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            header: (props: StackHeaderProps) => <CustomNavigationBar {...props} />,
-          }}
-        >
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <Provider store={Store}>
+      <DrawerNavigator />
+    </Provider>
   );
 };
 
