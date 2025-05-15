@@ -7,44 +7,47 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useMyContextController } from "../store";
-import firestore from '@react-native-firebase/firestore';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Alert } from 'react-native';
+import firestore from "@react-native-firebase/firestore";
 
-const AddNewService = () => {
+const EditService = () => {
   const navigation = useNavigation();
-  const [controller] = useMyContextController();
-  const { userLogin } = controller;
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('0');
+  const route = useRoute();
+  const { service } = route.params;
+  const [name, setName] = useState(service?.name || '');
+  const [price, setPrice] = useState(service?.price?.toString() || '0');
+  const [loading, setLoading] = useState(false);
 
-  const handleAdd = async () => {
+  const handleUpdate = async () => {
     if (!name || !price) {
-      alert('Vui lòng nhập đầy đủ thông tin');
+      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin");
       return;
     }
-    const now = new Date();
+  
+    setLoading(true);
     try {
-      const docRef = await firestore().collection('SERVICES').add({
+      const updatedService = {
         name,
         price: parseInt(price),
-        creator: userLogin?.fullName || 'Unknown',
-        time: now.toLocaleString(),
-        finalUpdate: now.toLocaleString(),
-        description: '',
-      });
-      const newService = {
-        id: docRef.id,
-        name,
-        price: parseInt(price),
-        creator: userLogin?.fullName || 'Unknown',
-        time: now.toLocaleString(),
-        finalUpdate: now.toLocaleString(),
-        description: '',
+        update: firestore.FieldValue.serverTimestamp(),
       };
-      navigation.navigate('Services', { newService });
+      console.log('service.id:', service.id);
+      console.log('updatedService:', updatedService);
+  
+      await firestore().collection("SERVICES").doc(service.id).update(updatedService);
+  
+      // Nếu có callback onUpdate, gọi về để cập nhật danh sách
+      if (route.params?.onUpdate) {
+        route.params.onUpdate({ ...service, ...updatedService });
+      }
+  
+      navigation.goBack();
     } catch (error) {
-      alert('Lỗi khi thêm dịch vụ: ' + (error.message || error));
+      Alert.alert("Lỗi", error.message || "Không thể cập nhật dịch vụ");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,12 +76,12 @@ const AddNewService = () => {
           keyboardType="numeric"
         />
         <Text style={styles.unit}>đ</Text>
-        <TouchableOpacity style={styles.addBtn} onPress={handleAdd}>
-          <Text style={styles.addBtnText}>Add</Text>
+        <TouchableOpacity style={styles.updateBtn} onPress={handleUpdate} disabled={loading}>
+          <Text style={styles.updateBtnText}>Update</Text>
         </TouchableOpacity>
-  </View>
+      </View>
     </SafeAreaView>
-);
+  );
 };
 
 const styles = StyleSheet.create({
@@ -136,18 +139,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  addBtn: {
+  updateBtn: {
     backgroundColor: '#e57373',
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 18,
   },
-  addBtnText: {
+  updateBtnText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
 });
 
-export default AddNewService; 
+export default EditService;

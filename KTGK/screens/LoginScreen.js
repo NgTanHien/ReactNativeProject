@@ -15,11 +15,11 @@ const Login = ({ navigation }) => {
   const hasErrorPassword = () => password.length < 6;
 
   const handleLogin = async () => {
-    await login(dispatch, email, password); // Đảm bảo gọi async login
+    await login(dispatch, email, password); 
   };
 
   useEffect(() => {
-    console.log("userLogin changed:", userLogin); // Debug thông tin userLogin
+    console.log("userLogin changed:", userLogin); 
     if (userLogin != null) {
       if (userLogin.role === "admin") {
         navigation.navigate("Admin");
@@ -36,12 +36,12 @@ const Login = ({ navigation }) => {
           fontSize: 40,
           fontWeight: "bold",
           alignSelf: "center",
-          color: "pink",
+          color: "blue",
           marginTop: 100,
           marginBottom: 50,
         }}
       >
-        Login
+        Restaurant App
       </Text>
 
       <TextInput label="Email" value={email} onChangeText={setEmail} />
@@ -72,9 +72,9 @@ const Login = ({ navigation }) => {
       <View
         style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}
       >
-        <Text>Don't have an account ?</Text>
+        
         <Button onPress={() => navigation.navigate("Register")}>
-          Create new account
+          Sign Up
         </Button>
       </View>
 

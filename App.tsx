@@ -1,119 +1,95 @@
 import React from "react";
-import firestore from "@react-native-firebase/firestore";
-import { View, FlatList, StyleSheet, Text } from "react-native";
-import { Appbar, Button, TextInput, useTheme } from "react-native-paper";
-import Todo from "./TodosApp/todo";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-type TodoItem = {
-  id: string;
-  title: string;
-  complete: boolean;
-};
+import Login from "./KTGK/screens/LoginScreen";
+import Register from "./KTGK/screens/RegisterScreen";
 
-function App() {
-  const [todo, setTodo] = React.useState<string>("");
-  const ref = firestore().collection("todos");
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [todos, setTodos] = React.useState<TodoItem[]>([]);
-  const theme = useTheme();
+import HomeScreen from "./KTGK/screens/Customer";
+import CartScreen from "./KTGK/screens/CartScreen";
+import FoodList from "./KTGK/screens/FoodList";
+import FoodDetail from "./KTGK/screens/FoodDetail";
+import LogoutScreen from "./KTGK/screens/LogoutScreen";
+import SuccessScreen from "./KTGK/screens/SuccessScreen";
 
-  async function addTodo() {
-    if (todo.trim().length === 0) return;
-    await ref.add({
-      title: todo,
-      complete: false,
-    });
-    setTodo("");
-  }
+import { MyContextControllerProvider } from "./KTGK/store";
+import { CartProvider } from "./KTGK/context/CartContext";
+import { MenuProvider } from "react-native-popup-menu";
+import ForgotPasswordScreen from "./KTGK/screens/ForgotPasswordScreen";
 
-  React.useEffect(() => {
-    const unsubscribe = ref.onSnapshot((querySnapshot) => {
-      const list: TodoItem[] = [];
-      querySnapshot.forEach((doc) => {
-        const { title, complete } = doc.data();
-        list.push({
-          id: doc.id,
-          title,
-          complete,
-        });
-      });
-      setTodos(list);
-      if (loading) {
-        setLoading(false);
-      }
-    });
+const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
-    return () => unsubscribe();
-  }, []);
+const DrawerNavigator = () => (
+  <Drawer.Navigator
+    screenOptions={{
+      headerStyle: { backgroundColor: "#d32f2f" },
+      headerTintColor: "#fff",
+      drawerActiveTintColor: "#d32f2f",
+    }}
+  >
+    <Drawer.Screen
+      name="Restaurant App"
+      component={HomeScreen}
+      options={{
+        drawerIcon: ({ color, size }) => (
+          <Icon name="restaurant-menu" color={color} size={size} />
+        ),
+      }}
+    />
+    <Drawer.Screen
+      name="Giỏ hàng"
+      component={CartScreen}
+      options={{
+        drawerIcon: ({ color, size }) => (
+          <Icon name="shopping-cart" color={color} size={size} />
+        ),
+      }}
+    />
+    <Drawer.Screen
+      name="Đăng xuất"
+      component={LogoutScreen}
+      options={{
+        drawerIcon: ({ color, size }) => (
+          <Icon name="logout" color={color} size={size} />
+        ),
+      }}
+    />
+  </Drawer.Navigator>
+);
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={{ fontSize: 16 }}>Loading...</Text>
-      </View>
-    );
-  }
-
+const App = () => {
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <Appbar.Header elevated>
-          <Appbar.Content title="TODOs List" />
-        </Appbar.Header>
+    <MenuProvider>
+      <MyContextControllerProvider>
+        <CartProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName="Login"
+              screenOptions={{ headerShown: false }}
+            >
+              {/* Màn hình Login và Register */}
+              <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+              <Stack.Screen name="Register" component={Register} />
 
-        <FlatList
-          contentContainerStyle={styles.todoList}
-          data={todos}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <Todo {...item} />}
-        />
+              {/* Drawer Navigator cho màn chính */}
+              <Stack.Screen name="Customer" component={DrawerNavigator} />
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            label="New Todo"
-            value={todo}
-            mode="outlined"
-            onChangeText={(text) => setTodo(text)}
-            style={styles.textInput}
-          />
-          <Button mode="contained" onPress={addTodo}>
-            Add TODO
-          </Button>
-        </View>
-      </View>
-    </SafeAreaProvider>
+              {/* Ẩn nhưng vẫn có thể điều hướng được */}
+              <Stack.Screen name="FoodList" component={FoodList} />
+              <Stack.Screen name="FoodDetail" component={FoodDetail} />
+
+              {/* Màn hình thanh toán thành công */}
+              <Stack.Screen name="Success" component={SuccessScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </CartProvider>
+      </MyContextControllerProvider>
+    </MenuProvider>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fefefe",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  todoList: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 80,
-  },
-  inputContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "white",
-    padding: 16,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-  },
-  textInput: {
-    marginBottom: 10,
-  },
-});
+};
 
 export default App;

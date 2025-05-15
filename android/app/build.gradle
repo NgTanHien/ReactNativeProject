@@ -80,7 +80,7 @@ android {
 
     namespace "com.demoreactnative"
     defaultConfig {
-        applicationId "com.todosapp"
+        applicationId "com.nth.DemoProject"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

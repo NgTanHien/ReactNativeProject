@@ -1,8 +1,8 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import Login from "../screens/Login";
-import Register from "../screens/Register";
-import Admin from "../screens/Admin";
+import Login from "../screens/LoginScreen";
+import Register from "../screens/RegisterScreen";
 import Customer from "../screens/Customer";
+import SuccessScreen from "../screens/SuccessScreen";
 import { useMyContextController } from "../store";
 
 const Stack = createStackNavigator();
@@ -10,7 +10,6 @@ const Stack = createStackNavigator();
 const Router = () => {
   const [controller] = useMyContextController();
   const { userLogin } = controller;
-  const isAdmin = userLogin?.role === "admin";
 
   console.log('Router component initialized');
   return (
@@ -34,13 +33,13 @@ const Router = () => {
         }}
       />
       <Stack.Screen 
-        name="Admin" 
-        component={Admin}
+        name="Success" 
+        component={SuccessScreen}
         listeners={{
-          focus: () => console.log('Admin screen focused'),
+          focus: () => console.log('Success screen focused'),
         }}
       />
-      {isAdmin && (
+      
         <Stack.Screen 
           name="Customer" 
           component={Customer}
@@ -48,7 +47,7 @@ const Router = () => {
             focus: () => console.log('Customer screen focused'),
           }}
         />
-      )}
+
       <Stack.Screen 
         name="Register" 
         component={Register}

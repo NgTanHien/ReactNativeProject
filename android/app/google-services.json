@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "165109890627",
-    "project_id": "todosapp-9122f",
-    "storage_bucket": "todosapp-9122f.firebasestorage.app"
+    "project_number": "287372276299",
+    "project_id": "demoproject-5bf51",
+    "storage_bucket": "demoproject-5bf51.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:165109890627:android:fc2ba49977ace9171fdef6",
+        "mobilesdk_app_id": "1:287372276299:android:e6f6df550d6c8739a7d3ce",
         "android_client_info": {
-          "package_name": "com.todosapp"
+          "package_name": "com.nth.DemoProject"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB4opOiUf7Zbw-nCt4G7QZJtycT4U99FF4"
+          "current_key": "AIzaSyDERP0lObHAgB8MpKaf_IRoWbkXX-B7JZw"
         }
       ],
       "services": {
