@@ -14,7 +14,7 @@ const reducer = (state, action) => {
       return { ...state, userLogin: null };
     default:
       console.error("Action not found:", action.type);
-      return state; // Trả về state hiện tại nếu không có action phù hợp
+      return state; 
   }
 };
 
@@ -43,22 +43,21 @@ const USERS = firestore().collection("USERS");
 // Hàm đăng nhập đã sửa
 const login = async (dispatch, email, password) => {
   try {
-    // Đăng nhập với Firebase Auth
-    await auth().signInWithEmailAndPassword(email, password);
-    // Lấy thông tin người dùng từ Firestore
-    USERS.doc(email).onSnapshot((u) => {
-      if (u.exists) {
-        // Cập nhật thông tin người dùng vào Context
-        dispatch({ type: "USER_LOGIN", value: u.data() });
-      } else {
-        Alert.alert("User profile not found in Firestore");
-      }
-    });
+    const userCredential = await auth().signInWithEmailAndPassword(email, password);
+    const uid = userCredential.user.uid;
+
+    const userDoc = await firestore().collection("USERS").doc(uid).get();
+    if (userDoc.exists) {
+      dispatch({ type: "USER_LOGIN", value: { ...userDoc.data(), uid } });
+    } else {
+      Alert.alert("Không tìm thấy thông tin người dùng trong Firestore.");
+    }
   } catch (e) {
     console.error("Firebase login error:", e);
-    Alert.alert("Sai email hoặc mật khẩu");
+    Alert.alert("Đăng nhập thất bại", e.message || "Sai email hoặc mật khẩu");
   }
 };
+
 
 // Hàm đăng xuất
 const logout = (dispatch) => {

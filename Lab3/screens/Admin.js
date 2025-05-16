@@ -5,7 +5,7 @@ import Customers from "./Customers";
 import Setting from "./Setting";
 import React from "react";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useMyContextController } from "../store";
+import { useMyContextController } from "../store/index";
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -20,9 +20,9 @@ const Admin = () => {
     shifting={true}
     barStyle={{
       backgroundColor: '#f8bbd0',
-      elevation: 0,           // Xóa bóng đổ (Android)
-      borderTopWidth: 0,      // Xóa viền trên (iOS/Android)
-      shadowOpacity: 0,       // Xóa bóng đổ (iOS)
+      elevation: 0,          
+      borderTopWidth: 0,      
+      shadowOpacity: 0,       
       }}
     >
       <Tab.Screen 

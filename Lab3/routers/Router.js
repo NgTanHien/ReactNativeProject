@@ -2,7 +2,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Login from "../screens/Login";
 import Register from "../screens/Register";
 import Admin from "../screens/Admin";
-import Customer from "../screens/Customer";
+import Customers from "../screens/Customers";
 import { useMyContextController } from "../store";
 
 const Stack = createStackNavigator();
@@ -43,7 +43,7 @@ const Router = () => {
       {isAdmin && (
         <Stack.Screen 
           name="Customer" 
-          component={Customer}
+          component={Customers}
           listeners={{
             focus: () => console.log('Customer screen focused'),
           }}

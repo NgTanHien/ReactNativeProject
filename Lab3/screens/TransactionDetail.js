@@ -1,81 +1,102 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Alert, TouchableOpacity, SafeAreaView } from "react-native";
-import { Text, Button } from "react-native-paper";
+import { View, StyleSheet, Alert, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { Text } from "react-native-paper";
 import firestore from "@react-native-firebase/firestore";
 
 const TransactionDetail = ({ navigation, route }) => {
   const { transaction } = route.params;
   const [detail, setDetail] = useState(transaction);
 
+  // Format Firestore timestamp
+  const formatDate = (timestamp) => {
+    return timestamp?.toDate ? timestamp.toDate().toLocaleString() : '---';
+  };
+
+  // Render reusable label/value pair
+  const renderDetailRow = (label, value) => (
+    <Text style={styles.label}>
+      <Text style={styles.labelBold}>{label}: </Text>
+      {value || '---'}
+    </Text>
+  );
+
   useEffect(() => {
     if (!transaction?.id) return;
-  
+
     const unsubscribe = firestore()
-      .collection("TRANSACTIONS") // Gọi đúng như hàm
-      .doc(transaction.id) // Gọi đúng như hàm
+      .collection("TRANSACTIONS")
+      .doc(transaction.id)
       .onSnapshot(doc => {
         if (doc.exists) {
           setDetail({ id: doc.id, ...doc.data() });
         } else {
-          // Đảm bảo Alert được gọi sau khi UI đã cập nhật
           setTimeout(() => {
             Alert.alert("Warning", "This transaction no longer exists.");
             navigation.goBack();
           }, 0);
         }
       });
-  
+
     return () => unsubscribe();
   }, [transaction?.id]);
-  
-  
 
   const handleDelete = () => {
-    Alert.alert("Warning", "Are you sure?", [
+    Alert.alert("Warning", "Are you sure you want to delete this transaction?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
-            try {
-              await firestore().collection("TRANSACTIONS").doc(detail.id).delete();
-              setTimeout(() => {
-                navigation.goBack();
-              }, 200); // chờ 200ms để tránh crash Alert
-            } catch (error) {
-              Alert.alert("Error", error.message);
-            }
+          try {
+            await firestore().collection("TRANSACTIONS").doc(detail.id).delete();
+            setTimeout(() => {
+              navigation.goBack();
+            }, 200);
+          } catch (error) {
+            Alert.alert("Error", error.message);
           }
-          
-      },
+        }
+      }
     ]);
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <View style={styles.card}>
-        <Text style={styles.label}><Text style={styles.labelBold}>Khách hàng: </Text>{detail.customerName}</Text>
-        <Text style={styles.label}><Text style={styles.labelBold}>Dịch vụ: </Text>{detail.service}</Text>
-        <Text style={styles.label}><Text style={styles.labelBold}>Số điện thoại: </Text>{detail.phone || '---'}</Text>
-        <Text style={styles.label}><Text style={styles.labelBold}>Ngày giờ hẹn: </Text>{detail.date || '---'}</Text>
-        <Text style={styles.label}><Text style={styles.labelBold}>Ghi chú: </Text>{detail.note || '---'}</Text>
-        <Text style={styles.label}><Text style={styles.labelBold}>Trạng thái: </Text>{detail.status || '---'}</Text>
-        <Text style={styles.label}><Text style={styles.labelBold}>Ngày tạo: </Text>{detail.createdAt?.toDate ? detail.createdAt.toDate().toLocaleString() : '---'}</Text>
-        <Text style={styles.label}><Text style={styles.labelBold}>Cập nhật: </Text>{detail.update?.toDate ? detail.update.toDate().toLocaleString() : '---'}</Text>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate("EditTransaction", { transaction: detail })}>
-            <Text style={styles.editBtnText}>Sửa</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete}>
-            <Text style={styles.deleteBtnText}>Xóa</Text>
-          </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.card}>
+          {renderDetailRow("Khách hàng", detail.customerName)}
+          {renderDetailRow("Dịch vụ", detail.service)}
+          {renderDetailRow("Số điện thoại", detail.phone)}
+          {renderDetailRow("Ngày giờ hẹn", detail.date)}
+          {renderDetailRow("Ghi chú", detail.note)}
+          {renderDetailRow("Trạng thái", detail.status)}
+          {renderDetailRow("Ngày tạo", formatDate(detail.createdAt))}
+          {renderDetailRow("Cập nhật", formatDate(detail.update))}
+
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.editBtn}
+              onPress={() => navigation.navigate("EditTransaction", { transaction: detail })}
+            >
+              <Text style={styles.editBtnText}>Sửa</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteBtn}
+              onPress={handleDelete}
+            >
+              <Text style={styles.deleteBtnText}>Xóa</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingBottom: 40,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,

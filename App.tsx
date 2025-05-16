@@ -1,92 +1,84 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { MyContextControllerProvider } from "./Lab3/store";
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import Icon from "react-native-vector-icons/MaterialIcons";
-
-import Login from "./KTGK/screens/LoginScreen";
-import Register from "./KTGK/screens/RegisterScreen";
-
-import HomeScreen from "./KTGK/screens/Customer";
-import CartScreen from "./KTGK/screens/CartScreen";
-import FoodList from "./KTGK/screens/FoodList";
-import FoodDetail from "./KTGK/screens/FoodDetail";
-import LogoutScreen from "./KTGK/screens/LogoutScreen";
-import SuccessScreen from "./KTGK/screens/SuccessScreen";
-
-import { MyContextControllerProvider } from "./KTGK/store";
-import { CartProvider } from "./KTGK/context/CartContext";
+import Router from "./Lab3/routers/Router";
 import { MenuProvider } from "react-native-popup-menu";
-import ForgotPasswordScreen from "./KTGK/screens/ForgotPasswordScreen";
 
-const Stack = createNativeStackNavigator();
-const Drawer = createDrawerNavigator();
+const App: React.FC = () => {
+  const admin = {
+    fullName: "admin",
+    email: "nth04062003@gmail.com",
+    password: "123456", 
+    phone: "0916185659",
+    address: "Bình Dương",
+    role: "admin",
+  };
 
-const DrawerNavigator = () => (
-  <Drawer.Navigator
-    screenOptions={{
-      headerStyle: { backgroundColor: "#d32f2f" },
-      headerTintColor: "#fff",
-      drawerActiveTintColor: "#d32f2f",
-    }}
-  >
-    <Drawer.Screen
-      name="Restaurant App"
-      component={HomeScreen}
-      options={{
-        drawerIcon: ({ color, size }) => (
-          <Icon name="restaurant-menu" color={color} size={size} />
-        ),
-      }}
-    />
-    <Drawer.Screen
-      name="Giỏ hàng"
-      component={CartScreen}
-      options={{
-        drawerIcon: ({ color, size }) => (
-          <Icon name="shopping-cart" color={color} size={size} />
-        ),
-      }}
-    />
-    <Drawer.Screen
-      name="Đăng xuất"
-      component={LogoutScreen}
-      options={{
-        drawerIcon: ({ color, size }) => (
-          <Icon name="logout" color={color} size={size} />
-        ),
-      }}
-    />
-  </Drawer.Navigator>
-);
+  useEffect(() => {
+    const checkAndCreateAdmin = async () => {
+      console.log("🔍 Checking admin account...");
 
-const App = () => {
+      try {
+        // 1. Đăng nhập bằng email & password
+        const userCredential = await auth().signInWithEmailAndPassword(
+          admin.email.trim(),
+          admin.password
+        );
+
+        const user = userCredential.user;
+        if (!user) {
+          console.warn("⚠️ No user returned after sign-in.");
+          return;
+        }
+
+        const uid = user.uid;
+        const userDoc = await firestore().collection("USERS").doc(uid).get();
+
+        if (!userDoc.exists) {
+          // 2. Nếu chưa có trong Firestore thì tạo
+          await firestore().collection("USERS").doc(uid).set({
+            ...admin,
+            uid,
+          });
+          console.log("✅ Admin info added to Firestore");
+        } else {
+          console.log("✅ Admin already exists in Firestore");
+        }
+      } catch (error: any) {
+        console.warn("⚠️ Sign-in failed:", error.code);
+
+        // 3. Nếu không đăng nhập được → tạo mới
+        try {
+          const userCredential = await auth().createUserWithEmailAndPassword(
+            admin.email.trim(),
+            admin.password
+          );
+
+          const uid = userCredential.user.uid;
+
+          await firestore().collection("USERS").doc(uid).set({
+            ...admin,
+            uid,
+          });
+
+          console.log("✅ Admin account created and saved to Firestore");
+        } catch (creationError: any) {
+          console.error("❌ Error creating admin:", creationError.code, creationError.message);
+        }
+      }
+    };
+
+    checkAndCreateAdmin();
+  }, []);
+
   return (
     <MenuProvider>
       <MyContextControllerProvider>
-        <CartProvider>
-          <NavigationContainer>
-            <Stack.Navigator
-              initialRouteName="Login"
-              screenOptions={{ headerShown: false }}
-            >
-              {/* Màn hình Login và Register */}
-              <Stack.Screen name="Login" component={Login} />
-              <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-              <Stack.Screen name="Register" component={Register} />
-
-              {/* Drawer Navigator cho màn chính */}
-              <Stack.Screen name="Customer" component={DrawerNavigator} />
-
-              {/* Ẩn nhưng vẫn có thể điều hướng được */}
-              <Stack.Screen name="FoodList" component={FoodList} />
-              <Stack.Screen name="FoodDetail" component={FoodDetail} />
-
-              {/* Màn hình thanh toán thành công */}
-              <Stack.Screen name="Success" component={SuccessScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </CartProvider>
+        <NavigationContainer>
+          <Router />
+        </NavigationContainer>
       </MyContextControllerProvider>
     </MenuProvider>
   );

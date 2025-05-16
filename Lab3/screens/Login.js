@@ -15,11 +15,11 @@ const Login = ({ navigation }) => {
   const hasErrorPassword = () => password.length < 6;
 
   const handleLogin = async () => {
-    await login(dispatch, email, password); // Đảm bảo gọi async login
+    await login(dispatch, email, password); 
   };
 
   useEffect(() => {
-    console.log("userLogin changed:", userLogin); // Debug thông tin userLogin
+    console.log("userLogin changed:", userLogin); 
     if (userLogin != null) {
       if (userLogin.role === "admin") {
         navigation.navigate("Admin");

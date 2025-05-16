@@ -22,7 +22,7 @@ const Register = ({ navigation }) => {
 
   const USERS = firestore().collection("USERS");
 
-  // Log validation errors
+ 
   useEffect(() => {
     console.log('Form validation:');
     console.log('- Full name:', hasErrorFullName() ? 'Invalid' : 'Valid');
